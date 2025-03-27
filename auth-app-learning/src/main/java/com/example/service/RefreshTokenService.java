@@ -5,11 +5,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.example.entity.RefreshToken;
 import com.example.repository.RefreshTokenRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -41,5 +43,13 @@ public class RefreshTokenService {
 
     public void deleteByUsername(String username) {
         refreshTokenRepository.deleteByUsername(username);
+    }
+
+    @Scheduled(fixedRate = 86400000)
+    @Transactional
+    public void deleteExpiredRefreshTokens() {
+        Instant now = Instant.now();
+        int deletedCount = refreshTokenRepository.deleteExpiredRefreshTokens(now);
+        System.out.println("Deleted " + deletedCount + " expired refresh tokens.");
     }
 }

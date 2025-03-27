@@ -5,10 +5,10 @@ import java.net.URL;
 import java.util.concurrent.*;
 
 public class MultiThreadedDownloader {
-    private static final int NUM_THREADS = 4; // Number of threads to use
+    private static final int NUM_THREADS = 16; // Number of threads to use
 
     public static void main(String[] args) {
-        String fileURL = "https://file-examples.com/storage/fe11f9541a67d9f2f9b2038/2017/04/file_example_MP4_640_3MG.mp4"; // Replace with your file URL
+        String fileURL = "http://localhost:8080"; // Replace with your file URL
         String savePath = "sample.mp4"; // Output file path
 
         try {
@@ -36,6 +36,7 @@ public class MultiThreadedDownloader {
         outputFile.setLength(fileSize); // Set file size to avoid issues
         outputFile.close();
 
+        long startTime = System.currentTimeMillis();
         for (int i = 0; i < numThreads; i++) {
             int startByte = i * partSize;
             int endByte = (i == numThreads - 1) ? fileSize - 1 : (startByte + partSize - 1);
@@ -45,6 +46,8 @@ public class MultiThreadedDownloader {
 
         executor.shutdown();
         executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        long endTime = System.currentTimeMillis();
+        System.out.println("Time taken: " + (endTime - startTime) + "ms");
         System.out.println("Download complete!");
     }
 
@@ -80,7 +83,7 @@ public class MultiThreadedDownloader {
                 }
 
                 System.out.println("Thread " + threadNumber + " finished downloading.");
-            } catch (IOException e) {
+            } catch (Exception e) {
                 System.err.println("Thread " + threadNumber + " error: " + e.getMessage());
             }
         }

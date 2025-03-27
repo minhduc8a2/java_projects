@@ -1,4 +1,4 @@
 package com.example;
 
-public class FileMeta {
+public record FileMeta(String name, String url, long size, boolean isDirectory) {
 }

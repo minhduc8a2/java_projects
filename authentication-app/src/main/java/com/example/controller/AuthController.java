@@ -2,9 +2,6 @@ package com.example.controller;
 
 import com.example.config.CustomUserDetailsService;
 import com.example.config.JwtUtils;
-import com.example.entity.User;
-import com.example.entity.User.Role;
-import com.example.repository.UserRepository;
 import com.example.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
