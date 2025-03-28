@@ -18,6 +18,10 @@ public class JwtUtils {
     private final SecretKey key;
     private final long jwtExpirationMs;
 
+    public long getJwtExpirationMs() {
+        return jwtExpirationMs;
+    }
+
     public JwtUtils(@Value("${jwt.secret}") String secret, @Value("${jwt.expirationMs}") long jwtExpirationMs) {
         key = Keys.hmacShaKeyFor(secret.getBytes());
         this.jwtExpirationMs = jwtExpirationMs;
@@ -39,7 +43,17 @@ public class JwtUtils {
     }
 
     public boolean isExpired(String token) {
-        return getClaims(token).getExpiration().after(new Date());
+        return getClaims(token).getExpiration().before(new Date());
+    }
+
+    public Date getIssuedAt(String token) {
+        return getClaims(token).getIssuedAt();
+
+    }
+
+    public Date getExpiration(String token) {
+        return getClaims(token).getExpiration();
+
     }
 
     private Claims getClaims(String token) {
