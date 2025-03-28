@@ -4,32 +4,41 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.requests.AddToCartRequest;
-import com.example.services.CartService;
+import com.example.entities.Order;
+import com.example.services.OrderService;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
-@RequestMapping("/api/carts")
+@RequestMapping("/api/orders")
 @RequiredArgsConstructor
-public class CartController {
-    private final CartService cartService;
+public class OrderController {
+    private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<Void> addToCart(@Valid @RequestBody AddToCartRequest request,
-            @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Void> place(@AuthenticationPrincipal UserDetails userDetails) {
         try {
-            cartService.addToCart(userDetails.getUsername(), request.productId(), request.quantity());
+            orderService.placeOrder(userDetails.getUsername());
             return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+    }
 
+    @GetMapping
+    public List<Order> getOrderHistory(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+
+            return orderService.getOrderHistory(userDetails.getUsername());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
