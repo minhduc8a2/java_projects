@@ -8,6 +8,7 @@ import com.example.requests.RegisterRequest;
 import com.example.responses.AuthReponse;
 import com.example.services.AuthService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
@@ -25,7 +26,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthReponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthReponse> login(@Valid @RequestBody LoginRequest request) {
         try {
             String jwtToken = authService.authenticate(request.username(), request.password());
             return ResponseEntity.ok(new AuthReponse(jwtToken));
@@ -35,7 +36,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthReponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthReponse> register(@Valid @RequestBody RegisterRequest request) {
         try {
             String jwtToken = authService.register(request.username(), request.email(), request.password());
             return ResponseEntity.ok(new AuthReponse(jwtToken));
