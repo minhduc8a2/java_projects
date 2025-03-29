@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-
+// @Disabled
 public class AuthControllerTest {
 
     @Autowired
