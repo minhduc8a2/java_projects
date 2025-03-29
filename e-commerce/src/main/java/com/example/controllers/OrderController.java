@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.example.dto.OrderDTO;
 import com.example.entities.Order;
 import com.example.services.OrderService;
 
@@ -30,7 +31,7 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<Void> place(@AuthenticationPrincipal UserDetails userDetails, UriComponentsBuilder ucb) {
         try {
-            Order order = orderService.placeOrder(userDetails.getUsername());
+            OrderDTO order = orderService.placeOrder(userDetails.getUsername());
             URI uri = ucb.path("api/orders/{id}").buildAndExpand(order.getId()).toUri();
             return ResponseEntity.created(uri).build();
         } catch (Exception e) {
@@ -39,7 +40,7 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Order>> getOrderHistory(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<List<OrderDTO>> getOrderHistory(@AuthenticationPrincipal UserDetails userDetails) {
         try {
             return ResponseEntity.ok(orderService.getOrderHistory(userDetails.getUsername()));
         } catch (Exception e) {
@@ -48,7 +49,7 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<Order> getOrder(@PathVariable Long orderId) {
+    public ResponseEntity<OrderDTO> getOrder(@PathVariable Long orderId) {
         if (orderId == null || orderId < 1) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "orderId must be greater than 0.");
         }

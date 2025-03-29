@@ -2,13 +2,17 @@ package com.example.services;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.example.dto.CartDTO;
+import com.example.dto.CartItemDTO;
 import com.example.entities.Cart;
 import com.example.entities.CartItem;
 import com.example.entities.Product;
 import com.example.entities.User;
+import com.example.mappers.CartMapper;
 import com.example.repositories.CartItemRepository;
 import com.example.repositories.CartRepository;
 import com.example.repositories.ProductRepository;
@@ -24,6 +28,8 @@ public class CartService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final CartItemRepository cartItemRepository;
+
+    private final CartMapper cartMapper;
 
     @Transactional
     public void addToCart(String username, Long productId, int quantity) {
@@ -54,19 +60,7 @@ public class CartService {
     }
 
     @Transactional
-    public Cart getCart(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        return cartRepository.findByUser(user).orElseGet(() -> {
-            Cart newCart = new Cart();
-            newCart.setUser(user);
-            return cartRepository.save(newCart);
-        });
-    }
-
-    @Transactional
-    public List<CartItem> getCartItems(String username) {
+    public CartDTO getCart(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
@@ -75,7 +69,21 @@ public class CartService {
             newCart.setUser(user);
             return cartRepository.save(newCart);
         });
-        return cart.getItems();
+
+        return cartMapper.cartToCartDTO(cart);
+    }
+
+    @Transactional
+    public List<CartItemDTO> getCartItems(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        Cart cart = cartRepository.findByUser(user).orElseGet(() -> {
+            Cart newCart = new Cart();
+            newCart.setUser(user);
+            return cartRepository.save(newCart);
+        });
+        return cartMapper.cartItemsToCartItemDTOs(cart.getCartItems());
     }
 
     @Transactional
@@ -88,7 +96,7 @@ public class CartService {
             newCart.setUser(user);
             return cartRepository.save(newCart);
         });
-        cartItemRepository.deleteAll(cart.getItems());
+        cartItemRepository.deleteAll(cart.getCartItems());
     }
 
 }

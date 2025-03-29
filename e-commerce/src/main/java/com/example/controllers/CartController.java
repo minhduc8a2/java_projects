@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.dto.CartItemDTO;
 import com.example.entities.Cart;
 import com.example.entities.CartItem;
 import com.example.requests.AddToCartRequest;
@@ -31,9 +32,9 @@ public class CartController {
     private final CartService cartService;
 
     @GetMapping
-    public ResponseEntity<List<CartItem>> getCartItems(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<List<CartItemDTO>> getCartItems(@AuthenticationPrincipal UserDetails userDetails) {
         try {
-            var cartItems = cartService.getCart(userDetails.getUsername()).getItems();
+            var cartItems = cartService.getCart(userDetails.getUsername()).getCartItems();
             return ResponseEntity.ok(cartItems);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
