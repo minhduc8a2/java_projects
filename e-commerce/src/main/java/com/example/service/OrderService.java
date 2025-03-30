@@ -18,6 +18,7 @@ import com.example.model.entity.Product;
 import com.example.model.entity.User;
 import com.example.model.enums.OrderStatus;
 import com.example.repository.*;
+import com.example.security.OrderSecurity;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,6 +36,8 @@ public class OrderService {
     private final UserRepository userRepository;
 
     private final OrderMapper orderMapper;
+
+    private final OrderSecurity orderSecurity;
 
     public OrderDTO placeOrder(String username) {
 
@@ -71,7 +74,7 @@ public class OrderService {
         return orderRepository.findByUser(user).stream().map(orderMapper::orderToOrderDTO).toList();
     }
 
-    @PreAuthorize("#order.user.username == authentication.name")
+    @PreAuthorize("hasRole('ADMIN') or @orderSecurity.isOrderOwner(#id)")
     public OrderDTO getOrder(long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found: " + id));

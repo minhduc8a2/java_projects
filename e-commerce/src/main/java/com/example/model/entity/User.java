@@ -1,6 +1,5 @@
 package com.example.model.entity;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -33,14 +32,14 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    
+
     private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
     public enum Role {
-        USER, ADMIN
+        ROLE_USER, ROLE_ADMIN
     }
 
 }

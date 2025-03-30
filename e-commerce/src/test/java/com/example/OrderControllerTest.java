@@ -9,6 +9,7 @@ import java.util.stream.LongStream;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,10 +22,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 
+import com.example.model.UserModel;
 import com.example.model.dto.CartDTO;
 import com.example.model.dto.OrderItemDTO;
 import com.example.model.entity.CartItem;
 import com.example.model.entity.User;
+import com.example.model.entity.User.Role;
 import com.example.repository.CartRepository;
 import com.example.repository.OrderRepository;
 import com.example.repository.UserRepository;
@@ -39,7 +42,9 @@ import com.jayway.jsonpath.JsonPath;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class OrderControllerTest {
-    private static String token;
+    private static String token1;
+    private static String token2;
+    private static String adminToken;
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
@@ -55,24 +60,34 @@ class OrderControllerTest {
     @Autowired
     private OrderService orderService;
 
+    private String generateToken(UserModel user) {
+        return authService.register(user.username(), user.email(), user.password(), user.role());
+    }
+
     @BeforeEach
     void setupContext() {
         try {
-            token = authService.register(Helper.USER_1.username(), Helper.USER_1.email(), Helper.USER_1.password());
+            token1 = generateToken(Helper.USER_1);
+            token2 = generateToken(Helper.USER_2);
+            adminToken = generateToken(Helper.ADMIN);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    private void deleteUser(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow();
+        cartRepository.findByUser(user).ifPresent(cartRepository::delete);
+        orderRepository.deleteAll(orderRepository.findByUser(user));
+        userRepository.delete(user);
+    }
+
     @AfterEach
     void clearContext() {
         try {
+            deleteUser(Helper.USER_1.username());
 
-            User user = userRepository.findByUsername(Helper.USER_1.username()).orElseThrow();
-            cartRepository.findByUser(user).ifPresent(cartRepository::delete);
-            orderRepository.deleteAll(orderRepository.findByUser(user));
-            userRepository.delete(user);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -87,16 +102,20 @@ class OrderControllerTest {
         //
     }
 
-    @Test
-    @DirtiesContext
-    void shouldReturnLocationOfNewOrder() {
-        initCartItems();
-
+    private ResponseEntity<String> createBearerAuthResponseEntity(String token, String url, HttpMethod method) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
         HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.exchange("/api/orders", HttpMethod.POST, httpEntity,
+        return restTemplate.exchange(url, method, httpEntity,
                 String.class);
+    }
+
+    @Test
+    @DirtiesContext
+    // @Disabled
+    void shouldReturnLocationOfNewOrder() {
+        initCartItems();
+        ResponseEntity<String> response = createBearerAuthResponseEntity(token1, "/api/orders", HttpMethod.POST);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isBlank();
@@ -108,8 +127,12 @@ class OrderControllerTest {
 
         URI location = response.getHeaders().getLocation();
 
-        ResponseEntity<String> orderResponse = restTemplate.exchange(location, HttpMethod.GET, httpEntity,
-                String.class);
+        if (location == null) {
+            fail("Location must not null");
+            return;
+        }
+        ResponseEntity<String> orderResponse = createBearerAuthResponseEntity(token1, location.toString(),
+                HttpMethod.GET);
 
         assertThat(orderResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -125,14 +148,13 @@ class OrderControllerTest {
 
     @Test
     @DirtiesContext
+    // @Disabled
+
     void shouldGetOrderById() {
         initCartItems();
         orderService.placeOrder(Helper.USER_1.username());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.exchange("/api/orders/1", HttpMethod.GET, httpEntity,
-                String.class);
+
+        ResponseEntity<String> response = createBearerAuthResponseEntity(token1, "/api/orders/1", HttpMethod.GET);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -159,15 +181,41 @@ class OrderControllerTest {
 
     @Test
     @DirtiesContext
+    void NotOwnershouldNotGetOrderById() {
+        initCartItems();
+        orderService.placeOrder(Helper.USER_1.username());
+
+        ResponseEntity<String> response = createBearerAuthResponseEntity(token2, "/api/orders/1", HttpMethod.GET);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+
+        response = createBearerAuthResponseEntity(token1, "/api/orders/1", HttpMethod.GET);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    @DirtiesContext
+    void AdminshouldGetAnyOrderById() {
+        initCartItems();
+        orderService.placeOrder(Helper.USER_1.username());
+
+        ResponseEntity<String> response = createBearerAuthResponseEntity(adminToken, "/api/orders/1", HttpMethod.GET);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+    }
+
+    
+
+    @Test
+    @DirtiesContext
+    // @Disabled
     void shouldGetAllOrderOfUser() {
         initCartItems();
         orderService.placeOrder(Helper.USER_1.username());
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.exchange("/api/orders", HttpMethod.GET, httpEntity,
-                String.class);
+        ResponseEntity<String> response = createBearerAuthResponseEntity(token1, "/api/orders", HttpMethod.GET);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 

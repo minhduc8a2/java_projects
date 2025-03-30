@@ -40,7 +40,21 @@ public class AuthService {
         if (userRepository.existsByEmail(email)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already in use.");
         }
-        User user = userRepository.save(new User(null, username, email, passwordEncoder.encode(password), Role.USER));
+        User user = userRepository.save(new User(null, username, email, passwordEncoder.encode(password), Role.ROLE_USER));
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
+        return jwtUtils.generateJwtToken(userDetails);
+
+    }
+
+    public String register(String username, String email, String password, Role role) {
+        if (userRepository.existsByUsername(username)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username is already taken.");
+        }
+
+        if (userRepository.existsByEmail(email)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already in use.");
+        }
+        User user = userRepository.save(new User(null, username, email, passwordEncoder.encode(password), role));
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
         return jwtUtils.generateJwtToken(userDetails);
 
