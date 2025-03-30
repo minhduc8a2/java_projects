@@ -5,12 +5,8 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-
-import com.example.model.dto.CartDTO;
-import com.example.model.dto.CartItemDTO;
 import com.example.model.dto.OrderDTO;
 import com.example.model.dto.OrderItemDTO;
-import com.example.model.entity.CartItem;
 import com.example.model.entity.Order;
 import com.example.model.entity.OrderItem;
 
@@ -21,7 +17,7 @@ public interface OrderMapper {
 
     Order orderDTOToOrder(OrderDTO orderDTO);
 
-    
+    List<OrderDTO> ordersToOrderDTOs(List<Order> orders);
 
     @Mapping(source = "product.id", target = "productId")
     @Mapping(source = "product.name", target = "productName")

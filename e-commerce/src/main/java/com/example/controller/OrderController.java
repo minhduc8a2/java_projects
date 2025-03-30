@@ -7,6 +7,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.example.model.dto.OrderDTO;
 import com.example.model.entity.Order;
+import com.example.model.enums.OrderStatus;
 import com.example.service.OrderService;
 
 import jakarta.validation.constraints.Min;
@@ -23,6 +24,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 @RestController
 @RequestMapping("/api/orders")
@@ -30,11 +34,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class OrderController {
     private final OrderService orderService;
 
-    @PostMapping
-    public ResponseEntity<Void> place(@AuthenticationPrincipal UserDetails userDetails, UriComponentsBuilder ucb) {
-        OrderDTO order = orderService.placeOrder(userDetails.getUsername());
-        URI uri = ucb.path("api/orders/{id}").buildAndExpand(order.getId()).toUri();
-        return ResponseEntity.created(uri).build();
+    @GetMapping("/all")
+    public ResponseEntity<List<OrderDTO>> getAllOrders() {
+        return ResponseEntity.ok(orderService.getAllOrders());
     }
 
     @GetMapping
@@ -47,5 +49,20 @@ public class OrderController {
     public ResponseEntity<OrderDTO> getOrder(@PathVariable @NotNull @Min(1) Long orderId) {
         return ResponseEntity.ok(orderService.getOrder(orderId));
     }
+
+    @PostMapping
+    public ResponseEntity<Void> place(@AuthenticationPrincipal UserDetails userDetails, UriComponentsBuilder ucb) {
+        OrderDTO order = orderService.placeOrder(userDetails.getUsername());
+        URI uri = ucb.path("api/orders/{id}").buildAndExpand(order.getId()).toUri();
+        return ResponseEntity.created(uri).build();
+    }
+
+    @PutMapping("{orderId}")
+    public ResponseEntity<OrderDTO> updateOrderStatus(@PathVariable @NotNull @Min(1) Long orderId,  @RequestParam OrderStatus status) {
+        return ResponseEntity.ok(orderService.updateOrderStatus(orderId, status)) ;
+    }
+
+
+   
 
 }

@@ -2,8 +2,6 @@ package com.example.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.util.UriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.example.model.dto.ProductDTO;
@@ -18,9 +16,11 @@ import java.net.URI;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
@@ -47,6 +47,18 @@ public class ProductController {
         URI uri = ucb.path("/api/products/{id}").buildAndExpand(addeProductDTO.getId()).toUri();
         return ResponseEntity.created(uri).build();
 
+    }
+
+    @PutMapping("{productId}")
+    public ResponseEntity<ProductDTO> updateProduct(@PathVariable @NotNull @Min(1) Long productId,
+            @Valid @RequestBody ProductDTO productDTO) {
+        return ResponseEntity.ok(productService.updateProduct(productId, productDTO));
+    }
+
+    @DeleteMapping("{productId}")
+    public ResponseEntity<ProductDTO> updateProduct(@PathVariable @NotNull @Min(1) Long productId) {
+        productService.deleteProduct(productId);
+        return ResponseEntity.noContent().build();
     }
 
 }
