@@ -1,12 +1,8 @@
 package com.example;
 
-import java.net.URI;
 import java.util.Date;
-import java.util.logging.Logger;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 // @Disabled
-public class AuthControllerTest {
+class AuthControllerTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -43,17 +39,16 @@ public class AuthControllerTest {
     @Autowired
     private UserRepository userRepository;
 
-    private Logger logger = Logger.getLogger(AuthControllerTest.class.getName());
 
     @BeforeEach
-    public void clearDatabase() {
-        userRepository.deleteByUsername(Helper.username);
+    void clearDatabase() {
+        userRepository.deleteByUsername(Helper.USER_1.username());
     }
 
     @Test
     @DirtiesContext
-    public void shouldReturnJwtTokenWhenRegistering() {
-        RegisterRequest registerRequest = new RegisterRequest(Helper.username, Helper.email, Helper.password);
+    void shouldReturnJwtTokenWhenRegistering() {
+        RegisterRequest registerRequest = new RegisterRequest(Helper.USER_1.username(), Helper.USER_1.email(), Helper.USER_1.password());
         ResponseEntity<String> response = restTemplate.postForEntity("/register", registerRequest, String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -67,7 +62,7 @@ public class AuthControllerTest {
         assertThat(isValidToken).isTrue();
 
         String tkUsername = jwtUtils.getUsername(token);
-        assertThat(tkUsername).isEqualTo(Helper.username);
+        assertThat(tkUsername).isEqualTo(Helper.USER_1.username());
 
         Date issuedAt = jwtUtils.getIssuedAt(token);
         Date expiration = jwtUtils.getExpiration(token);
@@ -77,17 +72,17 @@ public class AuthControllerTest {
 
     @Test
     @DirtiesContext
-    public void shouldReturnJwtTokenWhenLogin() {
+    void shouldReturnJwtTokenWhenLogin() {
 
         // Mock user
         try {
-            authService.register(Helper.username, Helper.email, Helper.password);
+            authService.register(Helper.USER_1.username(), Helper.USER_1.email(), Helper.USER_1.password());
         } catch (Exception e) {
             fail("Fail to mock user");
         }
 
         // Login
-        LoginRequest loginRequest = new LoginRequest(Helper.username, Helper.password);
+        LoginRequest loginRequest = new LoginRequest(Helper.USER_1.username(), Helper.USER_1.password());
         ResponseEntity<String> response = restTemplate.postForEntity("/login", loginRequest, String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -101,7 +96,7 @@ public class AuthControllerTest {
         assertThat(isValidToken).isTrue();
 
         String tkUsername = jwtUtils.getUsername(token);
-        assertThat(tkUsername).isEqualTo(Helper.username);
+        assertThat(tkUsername).isEqualTo(Helper.USER_1.username());
 
         Date issuedAt = jwtUtils.getIssuedAt(token);
         Date expiration = jwtUtils.getExpiration(token);

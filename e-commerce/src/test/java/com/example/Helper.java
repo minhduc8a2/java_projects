@@ -2,8 +2,10 @@ package com.example;
 
 import java.util.List;
 
+import com.example.model.UserModel;
 import com.example.model.entity.CartItem;
 import com.example.model.entity.Product;
+import com.example.model.entity.User.Role;
 
 public class Helper {
         public static List<Product> sampleProducts = List.of(
@@ -38,7 +40,12 @@ public class Helper {
                         new CartItem(null, null, sampleProducts.get(0), 10),
                         new CartItem(null, null, sampleProducts.get(1), 20),
                         new CartItem(null, null, sampleProducts.get(2), 30));
-        public static final String username = "minhduc8a2";
-        public static final String email = "minhduc8a2.1@gmail.com";
-        public static final String password = "heroandroid";
+
+        public static final UserModel USER_1 = new UserModel("username1", "user1@gmail.com", "user1password",
+                        Role.USER);
+
+        public static final UserModel USER_2 = new UserModel("username2", "user2@gmail.com", "user2password",
+                        Role.USER);
+
+        public static final UserModel ADMIN = new UserModel("admin", "admin@gmail.com", "admin123456", Role.ADMIN);
 }

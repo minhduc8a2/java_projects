@@ -2,11 +2,11 @@ package com.example.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.exception.EntityNotFoundException;
 import com.example.mappers.CartMapper;
 import com.example.model.dto.CartDTO;
 import com.example.model.dto.CartItemDTO;
@@ -31,10 +31,12 @@ public class CartService {
 
     private final CartMapper cartMapper;
 
+    private static final String USER_NOTFOUND_MESSAGE = "User not found";
+
     @Transactional
     public void addToCart(String username, Long productId, int quantity) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+                .orElseThrow(() -> new UsernameNotFoundException(USER_NOTFOUND_MESSAGE));
 
         Cart cart = cartRepository.findByUser(user).orElseGet(() -> {
             Cart newCart = new Cart();
@@ -52,9 +54,9 @@ public class CartService {
     @Transactional
     public void removeFromCart(String username, Long itemId) {
         CartItem item = cartItemRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Item not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Item not found"));
         if (!item.getCart().getUser().getUsername().equals(username)) {
-            throw new RuntimeException("Not owner");
+            throw new EntityNotFoundException("Item not found");
         }
         cartItemRepository.delete(item);
     }
@@ -62,7 +64,7 @@ public class CartService {
     @Transactional
     public CartDTO getCart(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException(USER_NOTFOUND_MESSAGE));
 
         Cart cart = cartRepository.findByUser(user).orElseGet(() -> {
             Cart newCart = new Cart();
@@ -76,7 +78,7 @@ public class CartService {
     @Transactional
     public List<CartItemDTO> getCartItems(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException(USER_NOTFOUND_MESSAGE));
 
         Cart cart = cartRepository.findByUser(user).orElseGet(() -> {
             Cart newCart = new Cart();
@@ -89,7 +91,7 @@ public class CartService {
     @Transactional
     public void clearCart(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException(USER_NOTFOUND_MESSAGE));
 
         Cart cart = cartRepository.findByUser(user).orElseGet(() -> {
             Cart newCart = new Cart();

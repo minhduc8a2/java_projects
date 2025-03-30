@@ -2,11 +2,9 @@ package com.example.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.example.model.dto.OrderDTO;
-import com.example.model.entity.Order;
 import com.example.model.enums.OrderStatus;
 import com.example.service.OrderService;
 
@@ -17,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import java.net.URI;
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;

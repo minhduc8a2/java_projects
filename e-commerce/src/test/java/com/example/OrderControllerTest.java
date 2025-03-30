@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 import org.junit.jupiter.api.AfterEach;
@@ -23,12 +22,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 
 import com.example.model.dto.CartDTO;
-import com.example.model.entity.Cart;
+import com.example.model.dto.OrderItemDTO;
 import com.example.model.entity.CartItem;
-import com.example.model.entity.Order;
-import com.example.model.entity.OrderItem;
 import com.example.model.entity.User;
-import com.example.repository.CartItemRepository;
 import com.example.repository.CartRepository;
 import com.example.repository.OrderRepository;
 import com.example.repository.UserRepository;
@@ -42,7 +38,7 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class OrderControllerTest {
+class OrderControllerTest {
     private static String token;
     @Autowired
     private TestRestTemplate restTemplate;
@@ -57,14 +53,12 @@ public class OrderControllerTest {
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
-    private CartItemRepository cartItemRepository;
-    @Autowired
     private OrderService orderService;
 
     @BeforeEach
-    public void setupContext() {
+    void setupContext() {
         try {
-            token = authService.register(Helper.username, Helper.email, Helper.password);
+            token = authService.register(Helper.USER_1.username(), Helper.USER_1.email(), Helper.USER_1.password());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -72,10 +66,10 @@ public class OrderControllerTest {
     }
 
     @AfterEach
-    public void clearContext() {
+    void clearContext() {
         try {
 
-            User user = userRepository.findByUsername(Helper.username).orElseThrow();
+            User user = userRepository.findByUsername(Helper.USER_1.username()).orElseThrow();
             cartRepository.findByUser(user).ifPresent(cartRepository::delete);
             orderRepository.deleteAll(orderRepository.findByUser(user));
             userRepository.delete(user);
@@ -88,14 +82,14 @@ public class OrderControllerTest {
         // add cartItems first
         long id = 1;
         for (CartItem cartItem : Helper.sampleCartItems) {
-            cartService.addToCart(Helper.username, id++, cartItem.getQuantity());
+            cartService.addToCart(Helper.USER_1.username(), id++, cartItem.getQuantity());
         }
         //
     }
 
     @Test
     @DirtiesContext
-    public void shouldReturnLocationOfNewOrder() {
+    void shouldReturnLocationOfNewOrder() {
         initCartItems();
 
         HttpHeaders headers = new HttpHeaders();
@@ -108,13 +102,12 @@ public class OrderControllerTest {
         assertThat(response.getBody()).isBlank();
 
         // cart must be empty
-        CartDTO cart = cartService.getCart(Helper.username);
-        
-        assertThat(cart.getCartItems().size()).isEqualTo(0);
+        CartDTO cart = cartService.getCart(Helper.USER_1.username());
+
+        assertThat(cart.getCartItems()).isEmpty();
 
         URI location = response.getHeaders().getLocation();
 
-        System.out.println("location: " + location.toString());
         ResponseEntity<String> orderResponse = restTemplate.exchange(location, HttpMethod.GET, httpEntity,
                 String.class);
 
@@ -132,9 +125,9 @@ public class OrderControllerTest {
 
     @Test
     @DirtiesContext
-    public void shouldGetOrderById() {
+    void shouldGetOrderById() {
         initCartItems();
-        orderService.placeOrder(Helper.username);
+        orderService.placeOrder(Helper.USER_1.username());
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
         HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
@@ -143,32 +136,33 @@ public class OrderControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        // try {
+        try {
 
-        //     ObjectMapper objectMapper = new ObjectMapper();
-        //     JsonNode root = objectMapper.readTree(response.getBody());
-        //     JsonNode orderItemsNode = root.path("orderItems");
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode root = objectMapper.readTree(response.getBody());
+            JsonNode orderItemsNode = root.path("orderItems");
 
-        //     List<OrderItem> orderItems = objectMapper.readValue(
-        //             orderItemsNode.toString(),
-        //             new TypeReference<List<OrderItem>>() {
-        //             });
-        //     assertThat(orderItems.size()).isEqualTo(3);
+            List<OrderItemDTO> orderItems = objectMapper.readValue(
+                    orderItemsNode.toString(),
+                    new TypeReference<List<OrderItemDTO>>() {
+                    });
+            assertThat(orderItems).hasSize(3);
 
-        //     assertThat(orderItems.stream().map(o -> o.getProduct().getId()).toList())
-        //             .isEqualTo(LongStream.rangeClosed(1, Helper.sampleCartItems.size()).boxed().toList());
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        //     fail("JSON parsing failed: " + e.getMessage());
-        // }
+            assertThat(orderItems.stream().map(o -> o.getProductId()).toList())
+                    .isEqualTo(LongStream.rangeClosed(1, Helper.sampleCartItems.size()).boxed().toList());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("JSON parsing failed: " + e.getMessage());
+        }
 
     }
 
     @Test
     @DirtiesContext
-    public void shouldGetAllOrderOfUser() {
+    void shouldGetAllOrderOfUser() {
         initCartItems();
-        orderService.placeOrder(Helper.username);
+        orderService.placeOrder(Helper.USER_1.username());
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
         HttpEntity<Void> httpEntity = new HttpEntity<>(headers);

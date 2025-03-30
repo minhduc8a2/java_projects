@@ -3,14 +3,9 @@ package com.example;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,7 +31,7 @@ import com.jayway.jsonpath.JsonPath;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 // @Disabled
-public class CartControllerTest {
+class CartControllerTest {
 
     private static String token;
     @Autowired
@@ -55,9 +50,9 @@ public class CartControllerTest {
     private CartService cartService;
 
     @BeforeEach
-    public void setupContext() {
+    void setupContext() {
         try {
-            token = authService.register(Helper.username, Helper.email, Helper.password);
+            token = authService.register(Helper.USER_1.username(), Helper.USER_1.email(), Helper.USER_1.password());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -65,10 +60,10 @@ public class CartControllerTest {
     }
 
     @AfterEach
-    public void clearContext() {
+    void clearContext() {
         try {
 
-            User user = userRepository.findByUsername(Helper.username).orElseThrow();
+            User user = userRepository.findByUsername(Helper.USER_1.username()).orElseThrow();
             cartRepository.findByUser(user).ifPresent(cartRepository::delete);
             userRepository.delete(user);
         } catch (Exception e) {
@@ -80,14 +75,14 @@ public class CartControllerTest {
         // add cartItems first
         long id = 1;
         for (CartItem cartItem : Helper.sampleCartItems) {
-            cartService.addToCart(Helper.username, id++, cartItem.getQuantity());
+            cartService.addToCart(Helper.USER_1.username(), id++, cartItem.getQuantity());
         }
         //
     }
 
     @Test
     @DirtiesContext
-    public void shouldGetCartItems() {
+    void shouldGetCartItems() {
         initCartItems();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
@@ -116,7 +111,7 @@ public class CartControllerTest {
 
     @Test
     @DirtiesContext
-    public void shouldAddProductToCart() {
+    void shouldAddProductToCart() {
         AddToCartRequest request = new AddToCartRequest(1L, 50);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
@@ -141,7 +136,7 @@ public class CartControllerTest {
 
     @Test
     @DirtiesContext
-    public void shouldDeleteCartItem() {
+    void shouldDeleteCartItem() {
         initCartItems();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
@@ -151,7 +146,7 @@ public class CartControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
-        assertThat(cartItemRepository.findById(1L).isPresent()).isFalse();
+        assertThat(cartItemRepository.findById(1L)).isNotPresent();
 
     }
 
