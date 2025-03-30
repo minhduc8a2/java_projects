@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.example.entities.User.Role;
+
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -28,7 +30,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.disable())
                 .authorizeHttpRequests(request -> request.requestMatchers("/login").permitAll()
                         .requestMatchers("/register").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.name())
+                        .anyRequest().authenticated()
+                        
+                        )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

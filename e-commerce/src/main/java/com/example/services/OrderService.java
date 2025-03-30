@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.dto.OrderDTO;
 import com.example.entities.Cart;
@@ -17,7 +18,7 @@ import com.example.entities.User;
 import com.example.mappers.OrderMapper;
 import com.example.repositories.*;
 
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
