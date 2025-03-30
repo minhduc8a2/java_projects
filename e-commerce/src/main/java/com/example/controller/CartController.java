@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.model.dto.CartItemDTO;
+import com.example.model.dto.request.AddToCartRequest;
 import com.example.model.entity.Cart;
 import com.example.model.entity.CartItem;
-import com.example.request.AddToCartRequest;
 import com.example.service.CartService;
 
 import jakarta.validation.Valid;

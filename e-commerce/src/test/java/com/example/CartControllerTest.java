@@ -23,12 +23,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 
+import com.example.model.dto.request.AddToCartRequest;
 import com.example.model.entity.CartItem;
 import com.example.model.entity.User;
 import com.example.repository.CartItemRepository;
 import com.example.repository.CartRepository;
 import com.example.repository.UserRepository;
-import com.example.request.AddToCartRequest;
 import com.example.service.AuthService;
 import com.example.service.CartService;
 import com.jayway.jsonpath.DocumentContext;

@@ -17,9 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 
 import com.example.config.JwtUtils;
+import com.example.model.dto.request.LoginRequest;
+import com.example.model.dto.request.RegisterRequest;
 import com.example.repository.UserRepository;
-import com.example.request.LoginRequest;
-import com.example.request.RegisterRequest;
 import com.example.service.AuthService;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
