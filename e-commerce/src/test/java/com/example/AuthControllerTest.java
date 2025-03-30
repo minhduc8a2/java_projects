@@ -16,11 +16,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 
-import com.example.configs.JwtUtils;
-import com.example.repositories.UserRepository;
-import com.example.requests.LoginRequest;
-import com.example.requests.RegisterRequest;
-import com.example.services.AuthService;
+import com.example.config.JwtUtils;
+import com.example.repository.UserRepository;
+import com.example.request.LoginRequest;
+import com.example.request.RegisterRequest;
+import com.example.service.AuthService;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 

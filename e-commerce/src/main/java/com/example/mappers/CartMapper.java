@@ -6,10 +6,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 
-import com.example.dto.CartDTO;
-import com.example.dto.CartItemDTO;
-import com.example.entities.Cart;
-import com.example.entities.CartItem;
+import com.example.model.dto.CartDTO;
+import com.example.model.dto.CartItemDTO;
+import com.example.model.entity.Cart;
+import com.example.model.entity.CartItem;
 
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)

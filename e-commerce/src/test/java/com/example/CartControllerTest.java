@@ -23,14 +23,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 
-import com.example.entities.CartItem;
-import com.example.entities.User;
-import com.example.repositories.CartItemRepository;
-import com.example.repositories.CartRepository;
-import com.example.repositories.UserRepository;
-import com.example.requests.AddToCartRequest;
-import com.example.services.AuthService;
-import com.example.services.CartService;
+import com.example.model.entity.CartItem;
+import com.example.model.entity.User;
+import com.example.repository.CartItemRepository;
+import com.example.repository.CartRepository;
+import com.example.repository.UserRepository;
+import com.example.request.AddToCartRequest;
+import com.example.service.AuthService;
+import com.example.service.CartService;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 

@@ -6,13 +6,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 
-import com.example.dto.CartDTO;
-import com.example.dto.CartItemDTO;
-import com.example.dto.OrderDTO;
-import com.example.dto.OrderItemDTO;
-import com.example.entities.CartItem;
-import com.example.entities.Order;
-import com.example.entities.OrderItem;
+import com.example.model.dto.CartDTO;
+import com.example.model.dto.CartItemDTO;
+import com.example.model.dto.OrderDTO;
+import com.example.model.dto.OrderItemDTO;
+import com.example.model.entity.CartItem;
+import com.example.model.entity.Order;
+import com.example.model.entity.OrderItem;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface OrderMapper {

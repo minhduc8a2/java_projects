@@ -2,8 +2,8 @@ package com.example;
 
 import java.util.List;
 
-import com.example.entities.CartItem;
-import com.example.entities.Product;
+import com.example.model.entity.CartItem;
+import com.example.model.entity.Product;
 
 public class Helper {
         public static List<Product> sampleProducts = List.of(

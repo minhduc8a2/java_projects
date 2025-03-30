@@ -5,8 +5,8 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 
-import com.example.dto.ProductDTO;
-import com.example.entities.Product;
+import com.example.model.dto.ProductDTO;
+import com.example.model.entity.Product;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ProductMapper {
